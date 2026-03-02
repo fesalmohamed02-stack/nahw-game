@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>تحدي النحو</title>
+<style>
+body{
+    font-family: Arial;
+    background: linear-gradient(to right,#1e3c72,#2a5298);
+    color:white;
+    text-align:center;
+    direction:rtl;
+}
+.container{
+    background:white;
+    color:black;
+    padding:20px;
+    margin:40px auto;
+    width:90%;
+    max-width:600px;
+    border-radius:15px;
+}
+textarea{
+    width:90%;
+    height:100px;
+    margin-top:10px;
+}
+button{
+    padding:10px 20px;
+    margin:10px;
+    background:#2a5298;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+button:hover{
+    background:#1e3c72;
+}
+#timer{
+    font-weight:bold;
+    color:red;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🔥 تحدي النحو 🔥</h1>
+<h3>النقاط: <span id="score">0</span></h3>
+<h4>الوقت: <span id="timer">30</span> ثانية</h4>
+
+<p id="sentence">اضغط ابدأ لعرض جملة</p>
+
+<textarea id="answer" placeholder="اكتب الإعراب هنا..."></textarea>
+<br>
+
+<button onclick="startGame()">ابدأ</button>
+<button onclick="checkAnswer()">تحقق</button>
+
+<p id="result"></p>
+</div>
+
+<script>
+
+let score = 0;
+let time = 30;
+let timerInterval;
+let usedSentences = [];
+let round = 0;
+
+let sentences = [
+{text:"نجح الطالب المجتهد", keywords:["فعل ماض","فاعل","مرفوع","نعت"]},
+{text:"السماء صافية", keywords:["مبتدأ","خبر","مرفوع"]},
+{text:"قرأ محمد الدرس", keywords:["فعل ماض","فاعل","مفعول به","منصوب"]},
+{text:"كتب التلميذ الواجب", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"الشمس مشرقة", keywords:["مبتدأ","خبر"]},
+{text:"حضر المدير الاجتماع", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"الولد نشيط", keywords:["مبتدأ","خبر"]},
+{text:"شرب الطفل اللبن", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"العلم نور", keywords:["مبتدأ","خبر"]},
+{text:"سافر أبي أمس", keywords:["فعل ماض","فاعل","ظرف زمان"]},
+{text:"الحديقة جميلة", keywords:["مبتدأ","خبر"]},
+{text:"يكتب الطالب الدرس", keywords:["فعل مضارع","فاعل","مفعول به"]},
+{text:"الجو معتدل اليوم", keywords:["مبتدأ","خبر","ظرف زمان"]},
+{text:"أكل الولد التفاحة", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"المدرسة كبيرة", keywords:["مبتدأ","خبر"]},
+{text:"يصلي المسلم الفجر", keywords:["فعل مضارع","فاعل","مفعول به"]},
+{text:"الماء نقي", keywords:["مبتدأ","خبر"]},
+{text:"ذهب أحمد إلى المدرسة", keywords:["فعل ماض","فاعل","جار ومجرور"]},
+{text:"الكتاب مفيد", keywords:["مبتدأ","خبر"]},
+{text:"فتح الحارس الباب", keywords:["فعل ماض","فاعل","مفعول به"]}
+];
+
+let currentSentence;
+
+function startGame(){
+
+    if(round >= 10){
+        document.getElementById("sentence").innerText = "🎉 انتهت اللعبة! مجموع نقاطك: " + score;
+        return;
+    }
+
+    document.getElementById("answer").value = "";
+    document.getElementById("result").innerText = "";
+
+    let available = sentences.filter(s => !usedSentences.includes(s.text));
+
+    let randomIndex = Math.floor(Math.random() * available.length);
+    currentSentence = available[randomIndex];
+
+    usedSentences.push(currentSentence.text);
+
+    document.getElementById("sentence").innerText = currentSentence.text;
+
+    round++;
+    resetTimer();
+}
+
+function checkAnswer(){
+
+    clearInterval(timerInterval);
+
+    let answer = document.getElementById("answer").value;
+    let correct = 0;
+
+    currentSentence.keywords.forEach(word=>{
+        if(answer.includes(word)){
+            correct++;
+        }
+    });
+
+    let grade = Math.round((correct / currentSentence.keywords.length)*100);
+
+    if(grade >= 80){
+        score += 15;
+        result.innerText = "🔥 ممتاز! درجتك: "+grade+"% (+15 نقطة)";
+    } 
+    else if(grade >= 60){
+        score += 10;
+        result.innerText = "✅ جيد! درجتك: "+grade+"% (+10 نقاط)";
+    } 
+    else {
+        result.innerText = "❌ حاول تاني. درجتك: "+grade+"%";
+    }
+
+    document.getElementById("score").innerText = score;
+}
+
+function resetTimer(){
+    time = 30;
+    document.getElementById("timer").innerText = time;
+
+    timerInterval = setInterval(function(){
+        time--;
+        document.getElementById("timer").innerText = time;
+
+        if(time <= 0){
+            clearInterval(timerInterval);
+            result.innerText = "⏰ انتهى الوقت!";
+        }
+    },1000);
+}
+
+</script>
+
+</body>
+</html>
