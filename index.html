@@ -21,11 +21,14 @@ body{
     border-radius:15px;
     box-shadow:0 0 15px rgba(0,0,0,0.3);
 }
-textarea{
+textarea, input{
     width:90%;
-    height:100px;
+    height:40px;
     margin-top:10px;
     font-size:16px;
+}
+textarea{
+    height:100px;
 }
 button{
     padding:10px 20px;
@@ -56,6 +59,15 @@ button:hover{
 
 <div class="container">
 <h1>🔥 تحدي النحو 🔥</h1>
+
+<div id="loginDiv">
+    <p>ادخل اسمك للبدء:</p>
+    <input type="text" id="playerName" placeholder="اكتب اسمك هنا">
+    <br>
+    <button onclick="loginPlayer()">ابدأ اللعب</button>
+</div>
+
+<div id="gameDiv" style="display:none;">
 <h3>النقاط: <span id="score">0</span></h3>
 <h4>الوقت: <span id="timer">4:00</span></h4>
 
@@ -64,7 +76,7 @@ button:hover{
 <textarea id="answer" placeholder="اكتب الإعراب هنا..."></textarea>
 <br>
 
-<button onclick="startGame()">ابدأ</button>
+<button onclick="startGame()">جملة جديدة</button>
 <button onclick="checkAnswer()">تحقق</button>
 
 <p id="result"></p>
@@ -73,6 +85,7 @@ button:hover{
 <hr>
 <h3>ترتيب اللاعبين</h3>
 <ol id="leaderboard"></ol>
+</div>
 
 </div>
 
@@ -84,7 +97,9 @@ let time = 240; // 4 دقائق
 let timerInterval;
 let usedSentences = [];
 let round = 0;
+let player = "";
 
+// جمل الإعراب 40 جملة
 let sentences = [
 {text:"نجح الطالب المجتهد", keywords:["فعل ماض","فاعل","مرفوع","نعت"]},
 {text:"السماء صافية", keywords:["مبتدأ","خبر","مرفوع"]},
@@ -105,18 +120,54 @@ let sentences = [
 {text:"الماء نقي", keywords:["مبتدأ","خبر"]},
 {text:"ذهب أحمد إلى المدرسة", keywords:["فعل ماض","فاعل","جار ومجرور"]},
 {text:"الكتاب مفيد", keywords:["مبتدأ","خبر"]},
-{text:"فتح الحارس الباب", keywords:["فعل ماض","فاعل","مفعول به"]}
+{text:"فتح الحارس الباب", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"جلس الطلاب في الفصل", keywords:["فعل ماض","فاعل","جار ومجرور"]},
+{text:"السماء تمطر اليوم", keywords:["مبتدأ","فعل مضارع","خبر"]},
+{text:"كتب علي الدرس بجد", keywords:["فعل ماض","فاعل","مفعول به","ظرف"]},
+{text:"الحديقة خضراء", keywords:["مبتدأ","خبر"]},
+{text:"زار المعلم الطالب", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"الطفل يضحك", keywords:["مبتدأ","فعل مضارع"]},
+{text:"شاهدت الفيلم أمس", keywords:["فعل ماض","فاعل","مفعول به","ظرف زمان"]},
+{text:"الكتاب ممتع", keywords:["مبتدأ","خبر"]},
+{text:"جلس أحمد على الكرسي", keywords:["فعل ماض","فاعل","جار ومجرور"]},
+{text:"الولد يلعب الكرة", keywords:["مبتدأ","فعل مضارع","مفعول به"]},
+{text:"زرع الفلاح الأرض", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"السماء صافية اليوم", keywords:["مبتدأ","خبر","ظرف زمان"]},
+{text:"الطالبة مجتهدة", keywords:["مبتدأ","خبر"]},
+{text:"أكلت التفاحة بسرعة", keywords:["فعل ماض","فاعل","مفعول به","ظرف"]},
+{text:"ذهب الطلاب إلى المدرسة", keywords:["فعل ماض","فاعل","جار ومجرور"]},
+{text:"الطفل يدرس بجد", keywords:["مبتدأ","فعل مضارع","ظرف"]},
+{text:"حضر الحفل الجميع", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"الجو حار اليوم", keywords:["مبتدأ","خبر","ظرف زمان"]},
+{text:"سمعنا الخبر السار", keywords:["فعل ماض","فاعل","مفعول به"]},
+{text:"الطالب متفوق", keywords:["مبتدأ","خبر"]},
+{text:"قرأ الأب الكتاب بصبر", keywords:["فعل ماض","فاعل","مفعول به","ظرف"]},
+{text:"المدينة جميلة في الليل", keywords:["مبتدأ","خبر","ظرف زمان"]},
+{text:"جلست الأم مع الأطفال", keywords:["فعل ماض","فاعل","جار ومجرور"]},
+{text:"الطلاب يستمعون للدرس", keywords:["مبتدأ","فعل مضارع","جار ومجرور"]}
 ];
 
-let currentSentence;
+// ===== تسجيل اللاعب =====
+function loginPlayer(){
+    let nameInput = document.getElementById("playerName").value.trim();
+    if(nameInput===""){
+        alert("اكتب اسمك للبدء!");
+        return;
+    }
+    player = nameInput;
 
-// استدعاء النقاط المحفوظة
-if(localStorage.getItem("score")){
-    score = parseInt(localStorage.getItem("score"));
+    // جلب النقاط السابقة إذا موجودة
+    let playersData = JSON.parse(localStorage.getItem("players")||"{}");
+    score = playersData[player] || 0;
+
     document.getElementById("score").innerText = score;
+    document.getElementById("loginDiv").style.display = "none";
+    document.getElementById("gameDiv").style.display = "block";
+
+    showLeaderboard();
 }
 
-// ===== الدالة لبدء اللعبة =====
+// ===== دالة بدء الجملة =====
 function startGame(){
     if(round >= 10){
         document.getElementById("sentence").innerText = "🎉 انتهت اللعبة! مجموع نقاطك: " + score;
@@ -141,7 +192,7 @@ function startGame(){
     resetTimer();
 }
 
-// ===== الدالة للتحقق من الإجابة =====
+// ===== دالة التحقق =====
 function checkAnswer(){
     clearInterval(timerInterval);
 
@@ -201,25 +252,28 @@ function updateTimerDisplay(){
     document.getElementById("timer").innerText = minutes+":"+ (seconds<10?"0"+seconds:seconds);
 }
 
-// ===== حفظ النقاط في المتصفح =====
+// ===== حفظ النقاط في LocalStorage =====
 function saveScore(){
-    localStorage.setItem("score",score);
+    let playersData = JSON.parse(localStorage.getItem("players")||"{}");
+    playersData[player] = score;
+    localStorage.setItem("players",JSON.stringify(playersData));
 }
 
 // ===== عرض ترتيب اللاعبين =====
 function showLeaderboard(){
     let leaderboard = document.getElementById("leaderboard");
     leaderboard.innerHTML = "";
-    // لو عايز ممكن نضيف لاعبين وهميين
-    let players = [
-        {name:"أنت", score:score},
-        {name:"علي", score:120},
-        {name:"سارة", score:100},
-        {name:"ليلى", score:80}
-    ];
-    // ترتيب
-    players.sort((a,b)=>b.score-a.score);
-    players.forEach(p=>{
+
+    let playersData = JSON.parse(localStorage.getItem("players")||"{}");
+    let playersArray = [];
+
+    for(let p in playersData){
+        playersArray.push({name:p, score:playersData[p]});
+    }
+
+    playersArray.sort((a,b)=>b.score-a.score);
+
+    playersArray.forEach(p=>{
         let li = document.createElement("li");
         li.innerText = p.name + " : " + p.score + " نقطة";
         leaderboard.appendChild(li);
