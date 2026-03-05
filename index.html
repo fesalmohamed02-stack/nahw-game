@@ -1,41 +1,39 @@
 <!DOCTYPE html>
 <html lang="ar">
-
 <head>
 <meta charset="UTF-8">
 <title>اختبار النحو - أبو فيصل</title>
-
 <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
 
-<div class="box">
+<div class="container">
 
 <h1>اختبار النحو</h1>
 
+<div class="start-box">
 <input id="player" placeholder="اكتب اسمك">
+<button onclick="startGame()">ابدأ اللعبة</button>
+</div>
 
-<button onclick="startGame()">ابدأ</button>
-
+<div class="game-box" style="display:none;">
 <div id="timer">4:00</div>
-
 <div id="sentence"></div>
 
 <input id="answer" placeholder="اكتب الإعراب هنا">
 
-<br>
-
+<div class="buttons">
 <button onclick="checkAnswer()">تحقق</button>
+<button onclick="showFull()">إعراب الجملة كاملة</button>
+</div>
 
+<div id="full"></div>
 <h2>الترتيب</h2>
-
 <div id="leaderboard"></div>
+</div>
 
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
