@@ -44,20 +44,14 @@ let sentences=[
 {sentence:"العلم نور يهدي الناس",word:"نور",answer:"خبر"},
 {sentence:"الصدق منجاة",word:"الصدق",answer:"مبتدأ"},
 {sentence:"كان البحر هادئاً",word:"هادئاً",answer:"خبر كان"},
-{sentence:"إن المطر نافع",word:"المطر",answer:"اسم إن"},
-{sentence:"جاء المعلم خالد",word:"خالد",answer:"بدل"},
-{sentence:"وقف الجندي ثابتاً",word:"ثابتاً",answer:"حال"},
-{sentence:"ازداد المؤمن إيماناً",word:"إيماناً",answer:"تمييز"},
-{sentence:"ركض الولد ركضاً سريعاً",word:"ركضاً",answer:"مفعول مطلق"},
-{sentence:"جلس الطفل بجوار أمه",word:"بجوار",answer:"ظرف مكان"},
-{sentence:"خرجت ليلاً",word:"ليلاً",answer:"ظرف زمان"},
-{sentence:"كان الطريق طويلاً",word:"طويلاً",answer:"خبر كان"},
-{sentence:"إن الصبر جميل",word:"الصبر",answer:"اسم إن"}
+{sentence:"إن المطر نافع",word:"المطر",answer:"اسم إن"}
 ]
 
 function startGame(){
 playerName=document.getElementById("player").value
 if(playerName==""){alert("اكتب اسمك أولاً");return;}
+document.querySelector(".start-box").style.display="none"
+document.querySelector(".game-box").style.display="block"
 loadSentence()
 loadLeaderboard()
 }
@@ -75,7 +69,7 @@ if(user.includes(sentences[current].answer)){
 alert("أنا كأبو فيصل فخور بيك 👏")
 score++
 }else{
-alert("حاول تاني وركز شوية")
+alert("حاول تاني وركز شوية 🙂")
 }
 current++
 if(current<sentences.length){
@@ -83,13 +77,14 @@ loadSentence()
 }else{
 saveScore()
 document.getElementById("sentence").innerHTML="انتهى الاختبار - نتيجتك "+score
+document.getElementById("answer").style.display="none"
 }
 document.getElementById("answer").value=""
 }
 
 function showFull(){
-let full=sentences[current].full||sentences[current].answer
-document.getElementById("full").innerHTML=full.join?full.join("<br>"):full
+let full=sentences[current].full||[sentences[current].answer]
+document.getElementById("full").innerHTML=full.join("<br>")
 }
 
 function saveScore(){
@@ -111,8 +106,11 @@ document.getElementById("leaderboard").innerHTML=html
 
 let time=240
 setInterval(function(){
+if(document.querySelector(".game-box").style.display=="block"){
 time--
 let m=Math.floor(time/60)
 let s=time%60
 document.getElementById("timer").innerHTML=m+":"+(s<10?"0"+s:s)
+if(time<=0){alert("انتهى الوقت")}
+}
 },1000)
