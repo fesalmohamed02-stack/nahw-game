@@ -48,69 +48,76 @@ let sentences=[
 ]
 
 function startGame(){
-playerName=document.getElementById("player").value
-if(playerName==""){alert("اكتب اسمك أولاً");return;}
-document.querySelector(".start-box").style.display="none"
-document.querySelector(".game-box").style.display="block"
-loadSentence()
-loadLeaderboard()
+  playerName = document.getElementById("player").value.trim()
+  if(playerName.length === 0){
+    alert("❌ من فضلك اكتب اسمك قبل البدء!")
+    return
+  }
+  document.querySelector(".start-box").style.display = "none"
+  document.querySelector(".game-box").style.display = "block"
+  loadSentence()
+  loadLeaderboard()
 }
 
 function loadSentence(){
-let s=sentences[current]
-let text=s.sentence.replace(s.word,"<u>"+s.word+"</u>")
-document.getElementById("sentence").innerHTML=text
-document.getElementById("full").innerHTML=""
+  let s = sentences[current]
+  let text = s.sentence.replace(s.word, "<u>"+s.word+"</u>")
+  document.getElementById("sentence").innerHTML = text
+  document.getElementById("full").innerHTML = ""
 }
 
 function checkAnswer(){
-let user=document.getElementById("answer").value
-if(user.includes(sentences[current].answer)){
-alert("أنا كأبو فيصل فخور بيك 👏")
-score++
-}else{
-alert("حاول تاني وركز شوية 🙂")
-}
-current++
-if(current<sentences.length){
-loadSentence()
-}else{
-saveScore()
-document.getElementById("sentence").innerHTML="انتهى الاختبار - نتيجتك "+score
-document.getElementById("answer").style.display="none"
-}
-document.getElementById("answer").value=""
+  let user = document.getElementById("answer").value
+  if(user.includes(sentences[current].answer)){
+    alert("✅ أنا كأبو فيصل فخور بيك 👏")
+    score++
+  } else {
+    alert("⚠️ حاول تاني وركز شوية 🙂")
+  }
+  current++
+  if(current<sentences.length){
+    loadSentence()
+  } else {
+    saveScore()
+    document.getElementById("sentence").innerHTML = "انتهى الاختبار - نتيجتك "+score
+    document.getElementById("answer").style.display = "none"
+  }
+  document.getElementById("answer").value = ""
 }
 
 function showFull(){
-let full=sentences[current].full||[sentences[current].answer]
-document.getElementById("full").innerHTML=full.join("<br>")
+  let full = sentences[current].full || [sentences[current].answer]
+  document.getElementById("full").innerHTML = full.join("<br>")
 }
 
 function saveScore(){
-let data=JSON.parse(localStorage.getItem("scores"))||[]
-data.push({name:playerName,score:score})
-data.sort((a,b)=>b.score-a.score)
-localStorage.setItem("scores",JSON.stringify(data))
-loadLeaderboard()
+  let data = JSON.parse(localStorage.getItem("scores")) || []
+  data.push({name:playerName,score:score})
+  data.sort((a,b)=>b.score-a.score)
+  localStorage.setItem("scores",JSON.stringify(data))
+  loadLeaderboard()
 }
 
 function loadLeaderboard(){
-let data=JSON.parse(localStorage.getItem("scores"))||[]
-let html=""
-for(let i=0;i<data.length;i++){
-html+=data[i].name+" : "+data[i].score+"<br>"
-}
-document.getElementById("leaderboard").innerHTML=html
+  let data = JSON.parse(localStorage.getItem("scores")) || []
+  let html = ""
+  for(let i=0;i<data.length;i++){
+    html += data[i].name+" : "+data[i].score+"<br>"
+  }
+  document.getElementById("leaderboard").innerHTML = html
 }
 
-let time=240
+let time = 300 // 5 دقائق
 setInterval(function(){
-if(document.querySelector(".game-box").style.display=="block"){
-time--
-let m=Math.floor(time/60)
-let s=time%60
-document.getElementById("timer").innerHTML=m+":"+(s<10?"0"+s:s)
-if(time<=0){alert("انتهى الوقت")}
-}
+  if(document.querySelector(".game-box").style.display=="block"){
+    time--
+    let m = Math.floor(time/60)
+    let s = time%60
+    document.getElementById("timer").innerHTML = m + ":" + (s<10?"0"+s:s)
+    if(time<=0){
+      alert("⏰ انتهى الوقت!")
+      document.getElementById("answer").style.display = "none"
+      document.getElementById("sentence").innerHTML = "انتهى الوقت! نتيجتك: " + score
+    }
+  }
 },1000)
