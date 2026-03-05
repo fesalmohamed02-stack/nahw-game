@@ -1,17 +1,16 @@
 let playerName=""
 let score=0
 let current=0
-
-let sentences=[
+let sentences=[]
+let allSentences = {
+easy:[
 {sentence:"كان الطالب مجتهداً",word:"مجتهداً",answer:"خبر كان منصوب"},
 {sentence:"أصبح الجو معتدلاً",word:"معتدلاً",answer:"خبر أصبح منصوب"},
 {sentence:"إن العلم نور",word:"العلم",answer:"اسم إن منصوب"},
-{sentence:"إن الصدق فضيلة",word:"الصدق",answer:"اسم إن منصوب"},
 {sentence:"نجح الطالب المجتهد",word:"المجتهد",answer:"نعت مرفوع"},
 {sentence:"رأيت الطالب نشيطاً",word:"نشيطاً",answer:"حال منصوب"},
 {sentence:"ازداد الطالب علماً",word:"علماً",answer:"تمييز منصوب"},
 {sentence:"جاء صديقك خالد",word:"خالد",answer:"بدل مرفوع"},
-{sentence:"ركض الطفل ركضاً سريعاً",word:"ركضاً",answer:"مفعول مطلق"},
 {sentence:"جلس الطالب أمام المعلم",word:"أمام",answer:"ظرف مكان"},
 {sentence:"قرأ محمد الكتاب",word:"الكتاب",answer:"مفعول به منصوب"},
 {sentence:"حضر المعلم مبكراً",word:"مبكراً",answer:"حال منصوب"},
@@ -19,7 +18,9 @@ let sentences=[
 {sentence:"الطالب نشيط",word:"الطالب",answer:"مبتدأ مرفوع"},
 {sentence:"كان الجو بارداً",word:"بارداً",answer:"خبر كان منصوب"},
 {sentence:"صار الليل هادئاً",word:"هادئاً",answer:"خبر صار منصوب"},
-{sentence:"ليس الكذب محموداً",word:"محموداً",answer:"خبر ليس منصوب"},
+{sentence:"ليس الكذب محموداً",word:"محموداً",answer:"خبر ليس منصوب"}
+],
+medium:[
 {sentence:"ظل الطالب يذاكر",word:"الطالب",answer:"اسم ظل مرفوع"},
 {sentence:"مازال المطر غزيراً",word:"غزيراً",answer:"خبر مازال منصوب"},
 {sentence:"بات الطفل سعيداً",word:"سعيداً",answer:"خبر بات منصوب"},
@@ -34,7 +35,9 @@ let sentences=[
 {sentence:"ضربت اللص ضرباً شديداً",word:"ضرباً",answer:"مفعول مطلق"},
 {sentence:"سافرت سفراً طويلاً",word:"سفراً",answer:"مفعول مطلق"},
 {sentence:"وقفت أمام المدرسة",word:"أمام",answer:"ظرف مكان"},
-{sentence:"جلست تحت الشجرة",word:"تحت",answer:"ظرف مكان"},
+{sentence:"جلست تحت الشجرة",word:"تحت",answer:"ظرف مكان"}
+],
+hard:[
 {sentence:"سافرت صباحاً",word:"صباحاً",answer:"ظرف زمان"},
 {sentence:"عدت مساءً",word:"مساءً",answer:"ظرف زمان"},
 {sentence:"نجح الطالبان المجتهدان",word:"المجتهدان",answer:"نعت مرفوع"},
@@ -46,13 +49,22 @@ let sentences=[
 {sentence:"كان البحر هادئاً",word:"هادئاً",answer:"خبر كان"},
 {sentence:"إن المطر نافع",word:"المطر",answer:"اسم إن"}
 ]
+}
 
 function startGame(){
   playerName = document.getElementById("player").value.trim()
+  let difficulty = document.getElementById("difficulty").value
   if(playerName.length === 0){
     alert("❌ من فضلك اكتب اسمك قبل البدء!")
     return
   }
+  if(difficulty===""){
+    alert("❌ من فضلك اختر مستوى الصعوبة!")
+    return
+  }
+  sentences = allSentences[difficulty]
+  current=0
+  score=0
   document.querySelector(".start-box").style.display = "none"
   document.querySelector(".game-box").style.display = "block"
   loadSentence()
