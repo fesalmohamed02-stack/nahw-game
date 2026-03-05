@@ -1,286 +1,41 @@
 <!DOCTYPE html>
 <html lang="ar">
+
 <head>
 <meta charset="UTF-8">
-<title>تحدي النحو</title>
-<style>
-body{
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right,#1e3c72,#2a5298);
-    color:white;
-    text-align:center;
-    direction:rtl;
-}
-.container{
-    background:white;
-    color:black;
-    padding:20px;
-    margin:40px auto;
-    width:90%;
-    max-width:600px;
-    border-radius:15px;
-    box-shadow:0 0 15px rgba(0,0,0,0.3);
-}
-textarea, input{
-    width:90%;
-    height:40px;
-    margin-top:10px;
-    font-size:16px;
-}
-textarea{
-    height:100px;
-}
-button{
-    padding:10px 20px;
-    margin:10px;
-    background:#2a5298;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
-}
-button:hover{
-    background:#1e3c72;
-}
-#timer{
-    font-weight:bold;
-    color:red;
-}
-#congrats{
-    font-family: 'Cursive', sans-serif;
-    color:#ff0066;
-    font-size:24px;
-    margin-top:15px;
-}
-</style>
+<title>اختبار النحو - أبو فيصل</title>
+
+<link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
 
-<div class="container">
-<h1>🔥 تحدي النحو 🔥</h1>
+<div class="box">
 
-<div id="loginDiv">
-    <p>ادخل اسمك للبدء:</p>
-    <input type="text" id="playerName" placeholder="اكتب اسمك هنا">
-    <br>
-    <button onclick="loginPlayer()">ابدأ اللعب</button>
-</div>
+<h1>اختبار النحو</h1>
 
-<div id="gameDiv" style="display:none;">
-<h3>النقاط: <span id="score">0</span></h3>
-<h4>الوقت: <span id="timer">4:00</span></h4>
+<input id="player" placeholder="اكتب اسمك">
 
-<p id="sentence">اضغط ابدأ لعرض جملة</p>
+<button onclick="startGame()">ابدأ</button>
 
-<textarea id="answer" placeholder="اكتب الإعراب هنا..."></textarea>
+<div id="timer">4:00</div>
+
+<div id="sentence"></div>
+
+<input id="answer" placeholder="اكتب الإعراب هنا">
+
 <br>
 
-<button onclick="startGame()">جملة جديدة</button>
 <button onclick="checkAnswer()">تحقق</button>
 
-<p id="result"></p>
-<p id="congrats"></p>
+<h2>الترتيب</h2>
 
-<hr>
-<h3>ترتيب اللاعبين</h3>
-<ol id="leaderboard"></ol>
-</div>
+<div id="leaderboard"></div>
 
 </div>
 
-<script>
-
-// === إعدادات اللعبة ===
-let score = 0;
-let time = 240; // 4 دقائق
-let timerInterval;
-let usedSentences = [];
-let round = 0;
-let player = "";
-
-// جمل الإعراب 40 جملة
-let sentences = [
-{text:"نجح الطالب المجتهد", keywords:["فعل ماض","فاعل","مرفوع","نعت"]},
-{text:"السماء صافية", keywords:["مبتدأ","خبر","مرفوع"]},
-{text:"قرأ محمد الدرس", keywords:["فعل ماض","فاعل","مفعول به","منصوب"]},
-{text:"كتب التلميذ الواجب", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"الشمس مشرقة", keywords:["مبتدأ","خبر"]},
-{text:"حضر المدير الاجتماع", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"الولد نشيط", keywords:["مبتدأ","خبر"]},
-{text:"شرب الطفل اللبن", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"العلم نور", keywords:["مبتدأ","خبر"]},
-{text:"سافر أبي أمس", keywords:["فعل ماض","فاعل","ظرف زمان"]},
-{text:"الحديقة جميلة", keywords:["مبتدأ","خبر"]},
-{text:"يكتب الطالب الدرس", keywords:["فعل مضارع","فاعل","مفعول به"]},
-{text:"الجو معتدل اليوم", keywords:["مبتدأ","خبر","ظرف زمان"]},
-{text:"أكل الولد التفاحة", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"المدرسة كبيرة", keywords:["مبتدأ","خبر"]},
-{text:"يصلي المسلم الفجر", keywords:["فعل مضارع","فاعل","مفعول به"]},
-{text:"الماء نقي", keywords:["مبتدأ","خبر"]},
-{text:"ذهب أحمد إلى المدرسة", keywords:["فعل ماض","فاعل","جار ومجرور"]},
-{text:"الكتاب مفيد", keywords:["مبتدأ","خبر"]},
-{text:"فتح الحارس الباب", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"جلس الطلاب في الفصل", keywords:["فعل ماض","فاعل","جار ومجرور"]},
-{text:"السماء تمطر اليوم", keywords:["مبتدأ","فعل مضارع","خبر"]},
-{text:"كتب علي الدرس بجد", keywords:["فعل ماض","فاعل","مفعول به","ظرف"]},
-{text:"الحديقة خضراء", keywords:["مبتدأ","خبر"]},
-{text:"زار المعلم الطالب", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"الطفل يضحك", keywords:["مبتدأ","فعل مضارع"]},
-{text:"شاهدت الفيلم أمس", keywords:["فعل ماض","فاعل","مفعول به","ظرف زمان"]},
-{text:"الكتاب ممتع", keywords:["مبتدأ","خبر"]},
-{text:"جلس أحمد على الكرسي", keywords:["فعل ماض","فاعل","جار ومجرور"]},
-{text:"الولد يلعب الكرة", keywords:["مبتدأ","فعل مضارع","مفعول به"]},
-{text:"زرع الفلاح الأرض", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"السماء صافية اليوم", keywords:["مبتدأ","خبر","ظرف زمان"]},
-{text:"الطالبة مجتهدة", keywords:["مبتدأ","خبر"]},
-{text:"أكلت التفاحة بسرعة", keywords:["فعل ماض","فاعل","مفعول به","ظرف"]},
-{text:"ذهب الطلاب إلى المدرسة", keywords:["فعل ماض","فاعل","جار ومجرور"]},
-{text:"الطفل يدرس بجد", keywords:["مبتدأ","فعل مضارع","ظرف"]},
-{text:"حضر الحفل الجميع", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"الجو حار اليوم", keywords:["مبتدأ","خبر","ظرف زمان"]},
-{text:"سمعنا الخبر السار", keywords:["فعل ماض","فاعل","مفعول به"]},
-{text:"الطالب متفوق", keywords:["مبتدأ","خبر"]},
-{text:"قرأ الأب الكتاب بصبر", keywords:["فعل ماض","فاعل","مفعول به","ظرف"]},
-{text:"المدينة جميلة في الليل", keywords:["مبتدأ","خبر","ظرف زمان"]},
-{text:"جلست الأم مع الأطفال", keywords:["فعل ماض","فاعل","جار ومجرور"]},
-{text:"الطلاب يستمعون للدرس", keywords:["مبتدأ","فعل مضارع","جار ومجرور"]}
-];
-
-// ===== تسجيل اللاعب =====
-function loginPlayer(){
-    let nameInput = document.getElementById("playerName").value.trim();
-    if(nameInput===""){
-        alert("اكتب اسمك للبدء!");
-        return;
-    }
-    player = nameInput;
-
-    // جلب النقاط السابقة إذا موجودة
-    let playersData = JSON.parse(localStorage.getItem("players")||"{}");
-    score = playersData[player] || 0;
-
-    document.getElementById("score").innerText = score;
-    document.getElementById("loginDiv").style.display = "none";
-    document.getElementById("gameDiv").style.display = "block";
-
-    showLeaderboard();
-}
-
-// ===== دالة بدء الجملة =====
-function startGame(){
-    if(round >= 10){
-        document.getElementById("sentence").innerText = "🎉 انتهت اللعبة! مجموع نقاطك: " + score;
-        clearInterval(timerInterval);
-        saveScore();
-        showLeaderboard();
-        return;
-    }
-
-    document.getElementById("answer").value = "";
-    document.getElementById("result").innerText = "";
-    document.getElementById("congrats").innerText = "";
-
-    let available = sentences.filter(s => !usedSentences.includes(s.text));
-    let randomIndex = Math.floor(Math.random() * available.length);
-    currentSentence = available[randomIndex];
-    usedSentences.push(currentSentence.text);
-
-    document.getElementById("sentence").innerText = currentSentence.text;
-
-    round++;
-    resetTimer();
-}
-
-// ===== دالة التحقق =====
-function checkAnswer(){
-    clearInterval(timerInterval);
-
-    let answer = document.getElementById("answer").value;
-    let correct = 0;
-
-    currentSentence.keywords.forEach(word=>{
-        if(answer.includes(word)){
-            correct++;
-        }
-    });
-
-    let grade = Math.round((correct / currentSentence.keywords.length)*100);
-
-    if(grade >= 80){
-        score += 15;
-        document.getElementById("result").innerText = "🔥 ممتاز! درجتك: "+grade+"% (+15 نقطة)";
-    } 
-    else if(grade >= 60){
-        score += 10;
-        document.getElementById("result").innerText = "✅ جيد! درجتك: "+grade+"% (+10 نقاط)";
-    } 
-    else {
-        document.getElementById("result").innerText = "❌ حاول مرة أخرى. درجتك: "+grade+"%";
-    }
-
-    document.getElementById("score").innerText = score;
-
-    // تهنئة عند وصول نصف النقاط
-    if(score >= 75 && score < 90){
-        document.getElementById("congrats").innerText = "🎉 تهانينا! لقد وصلت لنصف النقاط 🔥";
-    }
-
-    saveScore();
-    showLeaderboard();
-}
-
-// ===== عداد 4 دقائق =====
-function resetTimer(){
-    clearInterval(timerInterval);
-    time = 240;
-    updateTimerDisplay();
-
-    timerInterval = setInterval(function(){
-        time--;
-        updateTimerDisplay();
-        if(time <= 0){
-            clearInterval(timerInterval);
-            document.getElementById("result").innerText = "⏰ انتهى الوقت!";
-        }
-    },1000);
-}
-
-function updateTimerDisplay(){
-    let minutes = Math.floor(time/60);
-    let seconds = time % 60;
-    document.getElementById("timer").innerText = minutes+":"+ (seconds<10?"0"+seconds:seconds);
-}
-
-// ===== حفظ النقاط في LocalStorage =====
-function saveScore(){
-    let playersData = JSON.parse(localStorage.getItem("players")||"{}");
-    playersData[player] = score;
-    localStorage.setItem("players",JSON.stringify(playersData));
-}
-
-// ===== عرض ترتيب اللاعبين =====
-function showLeaderboard(){
-    let leaderboard = document.getElementById("leaderboard");
-    leaderboard.innerHTML = "";
-
-    let playersData = JSON.parse(localStorage.getItem("players")||"{}");
-    let playersArray = [];
-
-    for(let p in playersData){
-        playersArray.push({name:p, score:playersData[p]});
-    }
-
-    playersArray.sort((a,b)=>b.score-a.score);
-
-    playersArray.forEach(p=>{
-        let li = document.createElement("li");
-        li.innerText = p.name + " : " + p.score + " نقطة";
-        leaderboard.appendChild(li);
-    });
-}
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
